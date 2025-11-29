@@ -2,14 +2,17 @@
 // Svrha: Izolacija svih podataka, CRUD operacija, pretrage i paginacije iz AdminPanelPage,
 // čime se priprema aplikacija za Next.js API integraciju.
 import React, { createContext, useState, useContext, useMemo, useCallback } from 'react';
+// MOCK_USERS mora biti uvezen iz mockData (koji se mora ažurirati da sadrži User interface)
 import { MOCK_ARTISTS, MOCK_RELEASES, MOCK_ARTICLES, MOCK_USERS } from '../data/mockData';
-import type { Artist, Release } from '../data/types';
+// Uvoz tipova (mora postojati Artist, Release i User u types.ts)
+import type { Artist, Release, User } from '../data/types'; 
 
 // --- TIPOVI (Premešteni iz AdminPanelPage) ---
 export type EntityType = 'artists' | 'releases' | 'articles';
 export type ViewMode = 'grid' | 'list';
 
 // Tipovi za inicijalne objekte
+// NAPOMENA: Ovi tipovi moraju biti definisani u types.ts ili uvezeni
 const initialNewArtist: Artist = { id: Date.now(), name: '', genre: '', since: new Date().getFullYear(), bio: '', members: '', origin: '', tags: [] };
 const initialNewRelease: Release = { id: Date.now(), artist: '', artistId: 0, title: '', format: 'LP', year: new Date().getFullYear(), coverUrl: 'https://placehold.co/400x400/000000/FFFFFF?text=NEW+COVER', colorClass: 'bg-gray-800' };
 const initialNewArticle = { id: Date.now(), title: '', date: new Date().toISOString().substring(0, 10), snippet: '', artistId: 0, content: 'Pišite sadržaj ovde (možete koristiti HTML ili Markdown).', tags: '', };
@@ -19,7 +22,7 @@ interface DataContextProps {
   artists: Artist[];
   releases: Release[];
   articles: any[];
-  users: any[];
+  users: User[]; // Koristi User interfejs
   searchTerm: string;
   currentPage: number;
   itemsPerPage: number;
@@ -80,7 +83,7 @@ export const DataProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
   const [artists, setArtists] = useState<Artist[]>(MOCK_ARTISTS);
   const [releases, setReleases] = useState<Release[]>(MOCK_RELEASES);
   const [articles, setArticles] = useState(MOCK_ARTICLES);
-  const users = MOCK_USERS; // Mock Users ostaje ovde za sada
+  const users: User[] = MOCK_USERS; // Koristi se User tip
   
   // --- Stanje za Admin UI (Search, Pagination, View) ---
   const [searchTerm, setSearchTerm] = useState('');

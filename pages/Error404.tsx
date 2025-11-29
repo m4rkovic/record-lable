@@ -1,6 +1,6 @@
 // Naziv komponente: Error404
 import React from 'react';
-import { SectionTitle } from '../components/shared/SectionTitle'; 
+import { SectionTitle } from '../components/shared/SectionTitle'; // Pretpostavljeni uvoz
 
 // Simulišemo Link komponentu iz react-router-dom
 const Link: React.FC<React.PropsWithChildren<{ to: string, className?: string }>> = ({ to, children, className }) => (

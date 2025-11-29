@@ -1,36 +1,47 @@
 // Naziv komponente: App (GLAVNI KONTROLER)
 import React from 'react';
-// FIX: Ispravne putanje (pretpostavljamo da je App.tsx u src/)
+// Uvoz hooka sa router logikom (novo)
 import { useRouter } from './hooks/useRouter'; 
+// Uvoz Layout Komponenti
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+// Uvoz Data Providera
+import { DataProvider } from '../context/DataContext';
 
-// Glavna Aplikacija
-const App: React.FC = () => {
- // Sav posao rutiranja se obavlja unutar useRouter
- const { element: content, isReady } = useRouter();
+// AppInner je komponenta koja koristi useRouter hook.
+const AppInner: React.FC = () => {
+  // Sav posao rutiranja se obavlja unutar useRouter
+  const { element: content, isReady } = useRouter();
 
-if (!isReady) {
-// Jednostavan placeholder dok se router inicijalizuje
- return (
-<div className="min-h-screen bg-black flex items-center justify-center">
-<h1 className="text-4xl font-mono text-white border-4 border-yellow-400 p-4 transform skew-x-3">UČITAVANJE...</h1>
- </div>
- );
- }
+  if (!isReady) {
+    // Jednostavan placeholder dok se router inicijalizuje
+    return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+            <h1 className="text-4xl font-mono text-white border-4 border-yellow-400 p-4 transform skew-x-3">UČITAVANJE...</h1>
+        </div>
+    );
+  }
 
- return (
- // Dodat je pt-16 da bi se sadržaj spustio ispod fiksnog Header-a
- <div className="min-h-screen bg-black font-mono text-base overflow-x-hidden pt-16"> 
- <Header />
- <main className="mt-0">
- {/* Renderuje element koji je pronašao useRouter */}
- {content}
-</main>
- <Footer />
-</div>
- );
+  return (
+    // Dodat je pt-16 da bi se sadržaj spustio ispod fiksnog Header-a
+    <div className="min-h-screen bg-black font-mono text-base overflow-x-hidden pt-16"> 
+      <Header />
+      <main className="mt-0">
+        {/* Renderuje element koji je pronašao useRouter */}
+        {content}
+      </main>
+      <Footer />
+    </div>
+  );
 };
+
+// Glavna Aplikacija: Omotana DataProviderom da bi ceo app imao pristup stanju
+// NAPOMENA: DataProvider se mora koristiti OVDE da bi AdminPanelPage mogao da ga koristi.
+const App: React.FC = () => (
+    <DataProvider>
+        <AppInner />
+    </DataProvider>
+);
 
 export default App;
 

@@ -14,6 +14,8 @@ import ReleaseDetailPage from '../../pages/ReleaseDetailPage';
 import ArticleDetailPage from '../../pages/ArticleDetailPage';
 import AdminPanelPage from '../../pages/AdminPanelPage';
 import Error404 from '../../pages/Error404'; 
+import EventsPage from '../../pages/EventsPage'; // NOVE STRANICE
+import EventDetailPage from '../../pages/EventDetailPage'; // NOVE STRANICE
 
 
 // Definicija svih ruta i logike za parsiranje ID-a (IZVUČENO VAN HOOKA RADI STABILNOSTI)
@@ -23,6 +25,9 @@ const ROUTES = [
   { path: '/izvodjaci', element: () => (<ArtistsPage />), title: 'IZVOĐAČI' },
   { path: '/izdanja', element: () => (<ReleasesPage />), title: 'IZDANJA' }, 
   { path: '/clanci', element: () => (<ArticlesPage />), title: 'ČLANCI' }, 
+  { path: '/dogadjaji', element: () => (<EventsPage />), title: 'DOGAĐAJI' }, // NOVA RUTA
+  { path: '/podcast', element: () => (<PlaceholderPage title="PODCAST (U PRIPREMI)" />), title: 'PODCAST' }, // NOVA RUTA
+  { path: '/interesantno', element: () => (<PlaceholderPage title="INTERESANTNO (U PRIPREMI)" />), title: 'INTERESANTNO' }, // NOVA RUTA
   { path: '/o-nama', element: () => (<AboutPage />), title: 'O NAMA' }, 
   { path: '/kontakt', element: () => (<ContactPage />), title: 'KONTAKT' }, 
   { path: '/admin', element: () => (<AdminPanelPage />), title: 'ADMIN PANEL' },
@@ -31,6 +36,7 @@ const ROUTES = [
   { path: /^\/izvodjaci\/(\d+)$/, element: (id) => (<ArtistDetailPage artistId={id!} />), title: 'DETALJI IZVOĐAČA' },
   { path: /^\/izdanja\/(\d+)$/, element: (id) => (<ReleaseDetailPage releaseId={id!} />), title: 'DETALJI IZDANJA' },
   { path: /^\/clanci\/(\d+)$/, element: (id) => (<ArticleDetailPage articleId={id!} />), title: 'DETALJI ČLANKA' },
+  { path: /^\/dogadjaji\/(\d+)$/, element: (id) => (<EventDetailPage eventId={id!} />), title: 'DETALJI DOGAĐAJA' }, // NOVA DINAMIČKA RUTA
 ];
 
 interface RouterState {
@@ -72,6 +78,11 @@ export const useRouter = (): RouterState => {
         const match = currentHash.match(route.path);
         if (match) {
           const id = parseInt(match[1], 10);
+          
+          // Provera da li je ID validan broj
+          if (isNaN(id)) {
+             return <Error404 />;
+          }
           return route.element(id);
         }
       }
