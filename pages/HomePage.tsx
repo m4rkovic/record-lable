@@ -7,14 +7,16 @@ import AboutSection from '../sections/AboutSection';
 import ContactSection from '../sections/ContactSection';
 
 // Početna stranica koja agregira sve sekcije u jedan Landing Page
-const HomePage: React.FC = () => (
-  <>
-    <HeroSection />
-    <ReleasesSection />
-    <ArticlesSection />
-    <AboutSection />
-    <ContactSection />
-  </>
-);
+const HomePage: React.FC = () => {
+  return (
+    <>
+      <HeroSection />
+      <ReleasesSection />
+      <ArticlesSection />
+      <AboutSection />
+      <ContactSection />
+    </>
+  );  
+};
 
 export default HomePage;
