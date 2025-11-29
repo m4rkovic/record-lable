@@ -31,7 +31,7 @@ const initialNewArtist: Artist = { id: Date.now(), name: '', genre: '', since: n
 const initialNewRelease: Release = { id: Date.now(), artist: '', artistId: 0, title: '', format: 'LP', year: new Date().getFullYear(), coverUrl: 'https://placehold.co/400x400/000000/FFFFFF?text=NEW+COVER', colorClass: 'bg-gray-800' };
 const initialNewArticle = { id: Date.now(), title: '', date: new Date().toISOString().substring(0, 10), snippet: '', artistId: 0, content: 'Pišite sadržaj ovde (možete koristiti HTML ili Markdown).', tags: '', };
 
-// --- POMOĆNE KOMPONENTE (Definisane unutar fajla radi jednostavnosti uvoza) ---
+// --- POMOĆNE KOMPONENTE (Definisane unutar fajla radi jednostavnosti i kompletne funkcionalnosti) ---
 
 // Implementacija DashboardSection (za filtere, statistiku i rezultate)
 const DashboardSection: React.FC<any> = ({ 
@@ -370,13 +370,13 @@ const AdminPanelPage: React.FC = () => {
       setSearchTerm('');
   };
 
-  // --- POMOĆNE FUNKCIJE ZA CRUD SEKCIJE ---
+  // --- ПОМОЋНЕ ФУНКЦИЈЕ ЗА CRUD СЕКЦИЈЕ ---
 
   const filterAndPaginate = (data: any[], searchKeys: string[]) => {
     const filtered = data.filter(item => 
         searchKeys.some(key => {
             const value = item[key];
-            // Specijalni slučaj: ako je vrednost niz (tagovi), konvertujemo ga u string
+            // Специјални случај: ако је вредност низ (тагови), конвертујемо га у стринг
             const searchableValue = Array.isArray(value) ? value.join(' ') : String(value);
 
             return searchableValue.toLowerCase().includes(searchTerm.toLowerCase());
@@ -390,7 +390,7 @@ const AdminPanelPage: React.FC = () => {
   // FIX: Uklanjam resetovanje stranice iz handleSearchChange, jer se resetovanje (setCurrentPage(1)) već dešava u AdminPanelPage, a funkcija je prosleđena kroz props.
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(e.target.value);
-      //setCurrentPage(1); // OVO JE UZROKOVALO DUPLO RESETOVANJE i GUBITAK FOKUSA!
+      //setCurrentPage(1); // ОВО ЈЕ УЗРОКОВАЛО ДУПЛО РЕСЕТОВАЊЕ и ГУБИТАК ФОКУСА!
   };
   
   // --- RENDERING SEKCIJA (AGREGACIJA LOGIKE) ---
@@ -480,8 +480,7 @@ const AdminPanelPage: React.FC = () => {
         <h1 className="text-2xl font-extrabold ml-4">VOID ADMIN PANEL</h1>
       </div>
       
-      {/* GLAVNI FLEX KONTEJNER: Uklanjamo fiksni top padding i koristimo flex-col za mobilne (iako je ovde fiksni desktop) */}
-      {/* FIX: Dodajem mt-16 (4rem) na glavni kontejner da ga spustim ispod fiksnog Header-a na front-endu. */}
+      {/* GLAVNI FLEX KONTEJNER: FIX (Finalna verzija) -- Dodajemo mt-16 za razmak od fiksnog Header-a. */}
       <div className="flex max-w-7xl mx-auto mt-16" style={{ minHeight: 'calc(100vh - 64px)' }}> 
         
         {/* Sidebar */}
