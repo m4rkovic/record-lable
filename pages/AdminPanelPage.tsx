@@ -10,17 +10,17 @@ import { ViewControls } from '../components/admin/ViewControls';
 import { EntityForm } from '../components/admin/modals/EntityForm';
 import { BaseModal } from '../components/admin/modals/BaseModal';
 import { PaginationControls } from '../components/admin/PaginationControls'; 
+// Uvoz admin sekcija
+import { CrudSectionTemplate } from '../components/admin/sections/CrudSectionTemplate';
+import { DashboardUI } from '../components/admin/sections/DashboardUI';
+import { UsersTable } from '../components/admin/sections/UsersTable';
+import { SettingsSection } from '../components/admin/sections/SettingsSection';
+
+
 // Uvoz data i tipova
-import { MOCK_ARTISTS, MOCK_RELEASES, MOCK_ARTICLES } from '../data/mockData';
+import { MOCK_ARTISTS, MOCK_RELEASES, MOCK_ARTICLES, MOCK_USERS } from '../data/mockData';
 import type { Artist, Release } from '../data/types';
 
-
-// Mock podaci za korisnike
-const MOCK_USERS = [
-  { id: 1, name: 'Admin User', role: 'ADMIN', lastLogin: '2025-11-28' },
-  { id: 2, name: 'Demo User', role: 'USER', lastLogin: '2025-11-20' },
-  { id: 3, name: 'Press Contact', role: 'PRESS', lastLogin: '2025-11-15' },
-];
 
 export type CurrentSection = 'dashboard' | 'artists' | 'releases' | 'articles' | 'users' | 'settings';
 export type EntityType = 'artists' | 'releases' | 'articles';
@@ -30,257 +30,6 @@ export type ViewMode = 'grid' | 'list';
 const initialNewArtist: Artist = { id: Date.now(), name: '', genre: '', since: new Date().getFullYear(), bio: '', members: '', origin: '', tags: [] };
 const initialNewRelease: Release = { id: Date.now(), artist: '', artistId: 0, title: '', format: 'LP', year: new Date().getFullYear(), coverUrl: 'https://placehold.co/400x400/000000/FFFFFF?text=NEW+COVER', colorClass: 'bg-gray-800' };
 const initialNewArticle = { id: Date.now(), title: '', date: new Date().toISOString().substring(0, 10), snippet: '', artistId: 0, content: 'Pišite sadržaj ovde (možete koristiti HTML ili Markdown).', tags: '', };
-
-// --- POMOĆNE KOMPONENTE (Definisane unutar fajla radi jednostavnosti i kompletne funkcionalnosti) ---
-
-// Implementacija DashboardSection (za filtere, statistiku i rezultate)
-const DashboardSection: React.FC<any> = ({ 
-    selectedYear, setSelectedYear, selectedArtistId, setSelectedArtistId, selectedGenre, setSelectedGenre, 
-    triggerReport, setTriggerReport, allArtistOptions, releases, artists 
-}) => {
-    
-    // Logika za generisanje lažnog izveštaja na osnovu filtera
-    const generateMockReport = (year: string, artistId: number, genre: string) => {
-        const baseSales = 1000;
-        const yearMultiplier = year === 'SVE GODINE' ? 1.5 : (year === '2024' ? 1.2 : 1.0);
-        const artistMultiplier = artistId > 0 ? 1.3 : 1.0;
-        const genreMultiplier = genre !== 'SVI ŽANROVI' ? 1.1 : 1.0;
-        
-        const total = Math.floor(baseSales * yearMultiplier * artistMultiplier * genreMultiplier);
-        
-        return {
-            totalSales: total,
-            topArtist: artistId > 0 ? allArtistOptions.find((a: any) => a.id === artistId)?.name : "Senzorika",
-            topGenre: genre !== 'SVI ŽANROVI' ? genre : "Industrial Techno",
-            avgMonthly: Math.floor(total / 12),
-        };
-    };
-    
-    const uniqueYears = useMemo(() => Array.from(new Set(releases.map((r: any) => r.year.toString()))).sort().reverse(), [releases]);
-    const uniqueGenres = useMemo(() => Array.from(new Set(artists.map((a: any) => a.genre))).sort(), [artists]);
-    
-    // Logika koja se pokreće klikom na dugme "GENERISI IZVEŠTAJ"
-    const report = useMemo(() => {
-        if (!triggerReport) return null;
-        return generateMockReport(selectedYear, selectedArtistId, selectedGenre);
-    }, [releases, artists, selectedYear, selectedArtistId, selectedGenre, triggerReport]);
-    
-    // Resetuj triggerReport nakon generisanja
-    React.useEffect(() => {
-        if (triggerReport) {
-            setTriggerReport(false);
-        }
-    }, [report]);
-
-    return (
-        <div className='space-y-4'>
-          <h2 className="text-3xl font-mono text-black border-b-4 border-red-600 pb-1 inline-block">PREGLED STATISTIKE</h2>
-          <div className="p-4 border-4 border-black bg-gray-100">
-              <h3 className="text-xl font-mono text-black border-b border-black pb-1 mb-4">IZABERITE PARAMETRE IZVEŠTAJA:</h3>
-              
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-4'>
-                  <InputField label="GODINA:" type="select" options={['SVE GODINE', ...uniqueYears]} value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} />
-                  <InputField label="IZVOĐAČ/BEND:" type="select" options={['SVI IZVOĐAČI', ...allArtistOptions.map((a: any) => a.name)]} value={selectedArtistId} onChange={(e) => setSelectedArtistId(parseInt(e.target.value) || 0)} />
-                  <InputField label="ŽANR:" type="select" options={['SVI ŽANROVI', ...uniqueGenres]} value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)} />
-                  <InputField label="RASPOREĐIVANJE:" type="select" options={['PRODAJA / PREGLEDI']} value="PRODAJA / PREGLEDI" onChange={() => {}} />
-              </div>
-              
-              <div className="flex justify-end pt-4 border-t border-black">
-                  <AdminButton onClick={() => setTriggerReport(true)} color="red">GENERIŠI IZVEŠTAJ</AdminButton>
-              </div>
-          </div>
-          
-          {/* Rezultati Statističkog Izveštaja (RENDER TEK NAKON KLIKA) */}
-          <div className='p-4 border border-black bg-white'>
-            <h3 className="text-xl font-mono text-black border-b border-black pb-1 mb-4">DETALJAN IZVEŠTAJ</h3>
-            {report ? (
-                <div className='grid grid-cols-2 md:grid-cols-4 gap-4 font-mono'>
-                    <div className='p-3 border border-gray-400 bg-lime-100'><div className='text-xs text-gray-600'>Ukupna Metrika</div><div className='text-2xl font-bold text-black'>{report.totalSales}</div></div>
-                    <div className='p-3 border border-gray-400 bg-lime-100'><div className='text-xs text-gray-600'>Prosečno Mesečno</div><div className='text-2xl font-bold text-black'>{report.avgMonthly}</div></div>
-                    <div className='p-3 border border-gray-400 bg-lime-100'><div className='text-xs text-gray-600'>Top Izvođač</div><div className='text-lg font-bold text-red-600'>{report.topArtist}</div></div>
-                    <div className='p-3 border border-gray-400 bg-lime-100'><div className='text-xs text-gray-600'>Top Žanr</div><div className='text-lg font-bold text-red-600'>{report.topGenre}</div></div>
-                </div>
-            ) : (
-                <p className="font-mono text-gray-600">Odaberite filtere i kliknite na "Generiši Izveštaj".</p>
-            )}
-          </div>
-          
-          {/* Mock Sekcija Korisnika unutar Dashboarda */}
-          <div className="space-y-4 pt-8">
-            <h3 className="text-xl font-mono text-black border-b border-black pb-1 mb-4">AKTIVNI KORISNICI (MOCK)</h3>
-            <table className="w-full text-left font-mono border-collapse border border-black">
-              <thead className="bg-black text-white">
-                <tr>
-                  <th className="p-2 border-r border-gray-700">ID</th>
-                  <th className="p-2 border-r border-gray-700">IME</th>
-                  <th className="p-2 border-r border-gray-700">ROLA</th>
-                  <th className="p-2">ZADNJA PRIJAVA</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK_USERS.map(user => (
-                  <tr key={user.id} className="border-b border-black odd:bg-gray-100 even:bg-white hover:bg-lime-100 transition">
-                    <td className="p-2 border-r border-black text-red-600 font-bold">{user.id}</td>
-                    <td className="p-2 border-r border-black text-gray-800">{user.name}</td>
-                    <td className="p-2 border-r border-black">
-                      <span className={`px-2 py-0.5 text-xs font-bold ${user.role === 'ADMIN' ? 'bg-red-600 text-white' : 'bg-gray-400 text-black'}`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="p-2 text-sm text-gray-600">2025-11-28</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-    );
-};
-
-
-// FIX: VRAĆENA UsersSection komponenta
-const UsersSection: React.FC = () => (
-    <div className="space-y-4">
-      <h2 className="text-3xl font-mono text-black border-b-4 border-red-600 pb-1 inline-block">PREGLED KORISNIKA</h2>
-      <table className="w-full text-left font-mono border-collapse border border-black">
-        <thead className="bg-black text-white">
-          <tr>
-            <th className="p-3 border-r border-gray-700">ID</th>
-            <th className="p-3 border-r border-gray-700">IME</th>
-            <th className="p-3 border-r border-gray-700">ROLA</th>
-            <th className="p-3">ZADNJA PRIJAVA</th>
-          </tr>
-        </thead>
-        <tbody>
-          {MOCK_USERS.map(user => (
-            <tr key={user.id} className="border-b border-black odd:bg-gray-100 even:bg-white hover:bg-lime-100 transition">
-              <td className="p-3 border-r border-black text-red-600 font-bold">{user.id}</td>
-              <td className="p-3 border-r border-black text-gray-800">{user.name}</td>
-              <td className="p-3 border-r border-black">
-                <span className={`px-2 py-0.5 text-xs font-bold ${user.role === 'ADMIN' ? 'bg-red-600 text-white' : 'bg-gray-400 text-black'}`}>
-                  {user.role}
-                </span>
-              </td>
-              <td className="p-3 text-sm text-gray-600">{user.lastLogin}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-);
-
-
-// CrudSectionTemplate (Koristi se kao funkcija za renderovanje Artists, Releases, Articles)
-const CrudSectionTemplate: React.FC<any> = ({
-    title, dataCount, paginated, filteredLength, entityType, viewMode, setViewMode, searchTerm, handleSearchChange, handleCreateNew, handleEdit, handleDelete, itemsPerPage, setItemsPerPage, currentPage, setCurrentPage, setSearchTerm // DODATO setSearchTerm PROP
-}) => {
-    // ... (Logika Grid/List renderovanja)
-    const renderTableHeaders = () => {
-      if (entityType === 'artists') return ['ID', 'IME', 'ŽANR', 'AKCIJE'];
-      if (entityType === 'releases') return ['COVER', 'NASLOV', 'AUTOR', 'FORMAT', 'AKCIJE'];
-      if (entityType === 'articles') return ['ID', 'NASLOV', 'AUTOR ID', 'DATUM', 'AKCIJE'];
-      return [];
-    };
-
-    const renderTableRow = (item: any) => {
-        const ArtistRow = () => (<><td className="p-2 border-r border-black text-red-600 font-bold">{item.id}</td><td className="p-2 border-r border-black text-gray-800">{item.name}</td><td className="p-2 border-r border-black text-lime-600">{item.genre}</td></>);
-        const ReleaseRow = () => (<><td className="p-2 border-r border-black w-12"><img src={item.coverUrl} alt={item.title} className="w-8 h-8 object-cover border border-black" /></td><td className="p-2 border-r border-black text-gray-800">{item.title}</td><td className="p-2 border-r border-black text-lime-600">{item.artist}</td><td className="p-2 border-r border-black">{item.format}</td></>);
-        const ArticleRow = () => (<><td className="p-2 border-r border-black text-red-600 font-bold">{item.id}</td><td className="p-2 border-r border-black text-gray-800">{item.title}</td><td className="p-2 border-r border-black text-lime-600">{item.artistId}</td><td className="p-2 border-r border-black">{item.date}</td></>);
-
-        return (
-            <tr key={item.id} className="border-b border-black odd:bg-gray-100 even:bg-white hover:bg-lime-100 transition">
-                {(entityType === 'artists' && <ArtistRow />)}
-                {(entityType === 'releases' && <ReleaseRow />)}
-                {(entityType === 'articles' && <ArticleRow />)}
-                <td className="p-2 flex space-x-2">
-                    <AdminButton onClick={() => handleEdit(item, entityType)} color="gray" small>EDIT</AdminButton>
-                    <AdminButton onClick={() => handleDelete(item.id, entityType)} color="red" small>DELETE</AdminButton>
-                </td>
-            </tr>
-        );
-      };
-      
-      const renderGridItem = (item: any) => {
-        if (entityType === 'artists') return (
-            <div key={item.id} className="p-3 border border-black bg-white shadow-none">
-                <h3 className="text-xl font-mono text-black mb-1">{item.name.toUpperCase()}</h3>
-                <p className="text-sm font-serif italic text-gray-600 mb-3">{item.genre} | Od {item.since}</p>
-                <div className="flex space-x-2 mt-4">
-                    <AdminButton onClick={() => handleEdit(item, entityType)} color="gray" small>EDIT</AdminButton>
-                    <AdminButton onClick={() => handleDelete(item.id, entityType)} color="red" small>DELETE</AdminButton>
-                </div>
-            </div>
-        );
-        if (entityType === 'releases') return (
-            <div key={item.id} className="border border-black bg-white shadow-none">
-                <img src={item.coverUrl} alt={item.title} className="w-full h-auto border-b border-black" />
-                <div className='p-2'>
-                    <h3 className="text-sm font-mono text-gray-800 truncate leading-tight">{item.title}</h3>
-                    <p className="text-xs font-serif italic text-lime-600 mt-0.5">{item.artist}</p>
-                </div>
-                <div className="flex justify-between p-2 border-t border-black">
-                    <AdminButton onClick={() => handleEdit(item, entityType)} color="gray" small>EDIT</AdminButton>
-                    <AdminButton onClick={() => handleDelete(item.id, entityType)} color="red" small>DELETE</AdminButton>
-                </div>
-            </div>
-        );
-        if (entityType === 'articles') return (
-            <div key={item.id} className="p-3 border border-black bg-white flex justify-between items-center shadow-none">
-                <div>
-                    <h3 className="text-xl font-mono text-red-600 mb-1">{item.title.toUpperCase()}</h3>
-                    <p className="text-sm font-serif italic text-gray-600">Autor ID: {item.artistId} | {item.date}</p>
-                </div>
-                <div className="flex space-x-2">
-                    <AdminButton onClick={() => handleEdit(item, entityType)} color="gray" small>EDIT</AdminButton>
-                    <AdminButton onClick={() => handleDelete(item.id, entityType)} color="red" small>DELETE</AdminButton>
-                </div>
-            </div>
-        );
-      };
-
-
-      return (
-          <div className="space-y-4">
-              <div className="flex justify-between items-center border-b-4 border-black pb-2">
-                  <h2 className="text-3xl font-mono text-black">{title} ({dataCount})</h2>
-                  <div className='flex space-x-4 items-center'>
-                      <ViewControls currentMode={viewMode} setMode={setViewMode} entityType={entityType} handleCreateNew={handleCreateNew} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setCurrentPage={currentPage} />
-                  </div>
-              </div>
-              
-              {/* FIX: Sada se koristi setSearchTerm iz propsova */}
-              <input type="text" value={searchTerm} onChange={handleSearchChange} placeholder={`PRETRAŽI (${title})...`} className="w-full p-2 border-2 border-black bg-white text-gray-800 font-mono focus:border-lime-600" />
-
-              {filteredLength > 0 ? (
-                  <>
-                      {viewMode === 'grid' ? (
-                          <div className={`
-                              border border-black p-2 bg-gray-100
-                              ${entityType === 'articles' ? 'space-y-2' : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3'}
-                          `}>
-                              {paginated.map(renderGridItem)}
-                          </div>
-                      ) : (
-                          <table className="w-full text-left font-mono border-collapse border border-black">
-                              <thead className="bg-gray-200 text-black border-b-2 border-black">
-                                  <tr>
-                                      {renderTableHeaders().map(header => <th key={header} className="p-2 border-r border-black">{header}</th>)}
-                                  </tr>
-                              </thead>
-                              <tbody>
-                                  {paginated.map(renderTableRow)}
-                              </tbody>
-                          </table>
-                      )}
-                      <PaginationControls totalItems={dataCount} filteredLength={filteredLength} itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} />
-                  </>
-              ) : (
-                  <div className="p-4 border-2 border-red-600 bg-gray-100 text-center font-mono">Nema entiteta koji odgovaraju pretrazi.</div>
-              )}
-          </div>
-      );
-  };
-
 
 const AdminPanelPage: React.FC = () => {
   // --- GLAVNO STANJE I LOGIKA ---
@@ -323,14 +72,11 @@ const AdminPanelPage: React.FC = () => {
   };
 
   const handleDelete = (id: number, type: EntityType) => {
-    // FIX: Uklanjam confirm za privremeno testiranje, ali u stvarnoj aplikaciji bi trebao biti:
-    // if (confirm(`Da li ste sigurni da želite da obrišete ID: ${id}?`)) { 
-      switch (type) {
-        case 'artists': setArtists(prev => prev.filter(e => e.id !== id)); break;
-        case 'releases': setReleases(prev => prev.filter(e => e.id !== id)); break;
-        case 'articles': setArticles(prev => prev.filter(e => e.id !== id)); break;
-      }
-    // }
+    switch (type) {
+      case 'artists': setArtists(prev => prev.filter(e => e.id !== id)); break;
+      case 'releases': setReleases(prev => prev.filter(e => e.id !== id)); break;
+      case 'articles': setArticles(prev => prev.filter(e => e.id !== id)); break;
+    }
   };
 
   const handleSave = (entity: any, type: EntityType) => {
@@ -376,7 +122,6 @@ const AdminPanelPage: React.FC = () => {
     const filtered = data.filter(item => 
         searchKeys.some(key => {
             const value = item[key];
-            // Специјални случај: ако је вредност низ (тагови), конвертујемо га у стринг
             const searchableValue = Array.isArray(value) ? value.join(' ') : String(value);
 
             return searchableValue.toLowerCase().includes(searchTerm.toLowerCase());
@@ -387,10 +132,8 @@ const AdminPanelPage: React.FC = () => {
     return { filtered, paginated };
   }
   
-  // FIX: Uklanjam resetovanje stranice iz handleSearchChange, jer se resetovanje (setCurrentPage(1)) već dešava u AdminPanelPage, a funkcija je prosleđena kroz props.
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(e.target.value);
-      //setCurrentPage(1); // ОВО ЈЕ УЗРОКОВАЛО ДУПЛО РЕСЕТОВАЊЕ и ГУБИТАК ФОКУСА!
   };
   
   // --- RENDERING SEKCIJA (AGREGACIJA LOGIKE) ---
@@ -439,7 +182,7 @@ const AdminPanelPage: React.FC = () => {
   const renderContent = () => {
     switch (currentSection) {
       case 'dashboard':
-        return <DashboardSection 
+        return <DashboardUI 
             selectedYear={selectedYear} setSelectedYear={setSelectedYear} 
             selectedArtistId={selectedArtistId} setSelectedArtistId={setSelectedArtistId} 
             selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} 
@@ -453,16 +196,11 @@ const AdminPanelPage: React.FC = () => {
       case 'articles':
         return <ArticlesCrudSection />;
       case 'users':
-        return <UsersSection />; 
+        return <UsersTable />; 
       case 'settings':
-        return (
-            <div className='p-8 border border-black bg-gray-100'>
-                <h2 className='text-3xl font-mono text-black border-b-4 border-red-600 pb-1 inline-block'>PODEŠAVANJA SISTEMA</h2>
-                <p className='mt-4 font-serif text-gray-700'>Ova sekcija je rezervisana za buduća globalna podešavanja (API ključevi, backup, teme, itd.).</p>
-            </div>
-        );
+        return <SettingsSection />;
       default:
-        return <DashboardSection 
+        return <DashboardUI 
             selectedYear={selectedYear} setSelectedYear={setSelectedYear} 
             selectedArtistId={selectedArtistId} setSelectedArtistId={setSelectedArtistId} 
             selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} 
@@ -501,7 +239,6 @@ const AdminPanelPage: React.FC = () => {
 };
 
 export default AdminPanelPage;
-
 
 // // Naziv komponente: AdminPanelPage (MONOLITNA KOMPONENTA ZA ADMINISTRACIJU)
 // // TEMA: CLEAN DIGITAL BRUTALISM (Svetla paleta, fokus na Grid i tipografiju)

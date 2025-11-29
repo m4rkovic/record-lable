@@ -1,7 +1,6 @@
 // Naziv komponente: PaginationControls
 import React from 'react';
-import { AdminButton } from '../shared/AdminButton'; // Koristi AdminButton
-import { EntityType, ViewMode } from '../../pages/AdminPanelPage'; // Uvoz tipova
+import { AdminButton } from '../shared/AdminButton'; // Uvoz AdminButton
 
 interface PaginationControlsProps {
     totalItems: number; // Ukupan broj stavki pre filtriranja

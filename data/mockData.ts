@@ -54,8 +54,15 @@ export const MOCK_RELEASES: Release[] = [
 
 // Mock podaci za članke sa referencama na izvođače
 export const MOCK_ARTICLES = [
-  { id: 1, title: 'Analiza Zvuka: Tehnike Dron Proizvodnje', date: '2024.10.20', snippet: 'Duboki uvid u minimalne varijacije frekvencije i snagu produženog tona u ambient muzici. Kako postići maksimalnu tenziju minimalnim sredstvima.', artistId: 3 }, // Vortex Unit
-  { id: 2, title: 'Intervju: Senzorika o Ritmu i Industriji', date: '2024.09.15', snippet: 'Razgovor o nekonvencionalnim metodama snimanja industrijskog techna, korišćenju analognih mašina i borbi protiv digitalne sterilnosti.', artistId: 1 }, // Senzorika
-  { id: 3, title: 'Osvrt: Globalni Trendovi u Eksperimentalnom Džezu', date: '2024.08.01', snippet: 'Spajanje džeza sa bukom i free-form elektronikom. Primeri sa Baza 03 kolektivom.', artistId: 2 }, // Baza 03
-  { id: 4, title: 'Izdavačka Etika: Fizička Izdana kao Manifest', date: '2024.07.10', snippet: 'Zašto je u eri streaminga opipljivi medij bitan.', artistId: 0 }, // Opšti
+  { id: 1, title: 'Analiza Zvuka: Tehnike Dron Proizvodnje', date: '2024.10.20', snippet: 'Duboki uvid u minimalne varijacije frekvencije i snagu produženog tona u ambient muzici. Kako postići maksimalnu tenziju minimalnim sredstvima.', artistId: 3, content: 'Puni sadržaj članka o Dronu.' }, // Vortex Unit
+  { id: 2, title: 'Intervju: Senzorika o Ritmu i Industriji', date: '2024.09.15', snippet: 'Razgovor o nekonvencionalnim metodama snimanja industrijskog techna, korišćenju analognih mašina i borbi protiv digitalne sterilnosti.', artistId: 1, content: 'Puni sadržaj intervjua sa Senzorikom.' }, // Senzorika
+  { id: 3, title: 'Osvrt: Globalni Trendovi u Eksperimentalnom Džezu', date: '2024.08.01', snippet: 'Spajanje džeza sa bukom i free-form elektronikom. Primeri sa Baza 03 kolektivom.', artistId: 2, content: 'Puni sadržaj osvrta na eksperimentalni džez.' }, // Baza 03
+  { id: 4, title: 'Izdavačka Etika: Fizička Izdana kao Manifest', date: '2024.07.10', snippet: 'Zašto je u eri streaminga opipljivi medij bitan.', artistId: 0, content: 'Puni sadržaj o etici izdavanja.' }, // Opšti
+];
+
+// DODATO: Mock podaci za korisnike
+export const MOCK_USERS = [
+  { id: 1, name: 'Admin User', role: 'ADMIN', lastLogin: '2025-11-28' },
+  { id: 2, name: 'Demo User', role: 'USER', lastLogin: '2025-11-20' },
+  { id: 3, name: 'Press Contact', role: 'PRESS', lastLogin: '2025-11-15' },
 ];
