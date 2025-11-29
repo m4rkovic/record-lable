@@ -2,15 +2,18 @@
 import React, { useMemo, useEffect } from 'react';
 import { InputField } from '../../shared/InputField';
 import { AdminButton } from '../../shared/AdminButton';
-import { MOCK_USERS } from '../../../data/mockData'; 
+import { useData } from '../../../context/DataContext';
 
 // Implementacija DashboardSection (za filtere, statistiku i rezultate)
-export const DashboardUI: React.FC<any> = ({ 
-    selectedYear, setSelectedYear, selectedArtistId, setSelectedArtistId, selectedGenre, setSelectedGenre, 
-    triggerReport, setTriggerReport, allArtistOptions, releases, artists 
-}) => {
-    
-    // Logika za generisanje lažnog izveštaja na osnovu filtera
+export const DashboardUI: React.FC = () => {
+    const { 
+        artists, releases, 
+        selectedYear, setSelectedYear, selectedArtistId, setSelectedArtistId, selectedGenre, setSelectedGenre, 
+        triggerReport, setTriggerReport, allArtistOptions, 
+        users // Uvoz korisnika za mock tablicu
+    } = useData();
+
+    // Logika za generisanje lažnog izveštaja na osnovu filtera (premeštena u UI fajl za renderovanje)
     const generateMockReport = (year: string, artistId: number, genre: string) => {
         const baseSales = 1000;
         const yearMultiplier = year === 'SVE GODINE' ? 1.5 : (year === '2024' ? 1.2 : 1.0);
@@ -19,9 +22,12 @@ export const DashboardUI: React.FC<any> = ({
         
         const total = Math.floor(baseSales * yearMultiplier * artistMultiplier * genreMultiplier);
         
+        // Mock logika pretrage imena za prikaz rezultata
+        const topArtistName = allArtistOptions.find((a: any) => a.id === artistId)?.name || "Senzorika";
+
         return {
             totalSales: total,
-            topArtist: artistId > 0 ? allArtistOptions.find((a: any) => a.id === artistId)?.name : "Senzorika",
+            topArtist: artistId > 0 ? topArtistName : "Senzorika",
             topGenre: genre !== 'SVI ŽANROVI' ? genre : "Industrial Techno",
             avgMonthly: Math.floor(total / 12),
         };
@@ -89,7 +95,7 @@ export const DashboardUI: React.FC<any> = ({
                 </tr>
               </thead>
               <tbody>
-                {MOCK_USERS.map(user => (
+                {users.map(user => (
                   <tr key={user.id} className="border-b border-black odd:bg-gray-100 even:bg-white hover:bg-lime-100 transition">
                     <td className="p-2 border-r border-black text-red-600 font-bold">{user.id}</td>
                     <td className="p-2 border-r border-black text-gray-800">{user.name}</td>

@@ -3,7 +3,8 @@ import React from 'react';
 import { AdminButton } from '../../shared/AdminButton';
 import { ViewControls } from '../ViewControls';
 import { PaginationControls } from '../PaginationControls';
-import { EntityType, ViewMode } from '../../../pages/AdminPanelPage'; 
+import { EntityType, ViewMode } from '../../../context/DataContext'; // Uvoz iz DataContext
+import { useData } from '../../../context/DataContext';
 
 interface CrudSectionTemplateProps {
     title: string;
@@ -22,7 +23,7 @@ interface CrudSectionTemplateProps {
     setItemsPerPage: (num: number) => void;
     currentPage: number;
     setCurrentPage: (num: number) => void;
-    setSearchTerm: (term: string) => void; // Finalni fix za Search bug
+    setSearchTerm: (term: string) => void; 
 }
 
 export const CrudSectionTemplate: React.FC<CrudSectionTemplateProps> = ({

@@ -17,121 +17,39 @@ import { UsersTable } from '../components/admin/sections/UsersTable';
 import { SettingsSection } from '../components/admin/sections/SettingsSection';
 
 
-// Uvoz data i tipova
-import { MOCK_ARTISTS, MOCK_RELEASES, MOCK_ARTICLES, MOCK_USERS } from '../data/mockData';
+// Uvoz Data Context-a
+// NAPOMENA: Preuzeli smo EntityType i ViewMode iz DataContext.tsx
+import { useData, DataProvider, EntityType, ViewMode } from '../context/DataContext';
+
+// Uvoz tipova iz Data Context-a ili globalnog tip fajla
 import type { Artist, Release } from '../data/types';
 
 
 export type CurrentSection = 'dashboard' | 'artists' | 'releases' | 'articles' | 'users' | 'settings';
-export type EntityType = 'artists' | 'releases' | 'articles';
-export type ViewMode = 'grid' | 'list';
 
-// Inicijalni oblici za forme
-const initialNewArtist: Artist = { id: Date.now(), name: '', genre: '', since: new Date().getFullYear(), bio: '', members: '', origin: '', tags: [] };
-const initialNewRelease: Release = { id: Date.now(), artist: '', artistId: 0, title: '', format: 'LP', year: new Date().getFullYear(), coverUrl: 'https://placehold.co/400x400/000000/FFFFFF?text=NEW+COVER', colorClass: 'bg-gray-800' };
-const initialNewArticle = { id: Date.now(), title: '', date: new Date().toISOString().substring(0, 10), snippet: '', artistId: 0, content: 'Pišite sadržaj ovde (možete koristiti HTML ili Markdown).', tags: '', };
-
-const AdminPanelPage: React.FC = () => {
-  // --- GLAVNO STANJE I LOGIKA ---
+// AdminPanelInner komponenta koja koristi Context
+const AdminPanelInner: React.FC = () => {
+  // --- LOKALNO STANJE ZA RUTIRANJE (JEDINO ŠTO OSTAJE LOKALNO) ---
   const [currentSection, setCurrentSection] = useState<CurrentSection>('dashboard');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); 
-  
-  const [artists, setArtists] = useState<Artist[]>(MOCK_ARTISTS);
-  const [releases, setReleases] = useState<Release[]>(MOCK_RELEASES);
-  const [articles, setArticles] = useState(MOCK_ARTICLES);
-  
-  const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
-  const [editingRelease, setEditingRelease] = useState<Release | null>(null);
-  const [editingArticle, setEditingArticle] = useState<any | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  const [selectedYear, setSelectedYear] = useState('');
-  const [selectedArtistId, setSelectedArtistId] = useState(0);
-  const [selectedGenre, setSelectedGenre] = useState('');
-  const [triggerReport, setTriggerReport] = useState(false); 
+  // --- GLOBALNO STANJE IZ DATA CONTEXTA ---
+  // Sva stanja za podatke, CRUD logiku, pretragu i paginaciju sada dolaze iz useData hooka
+  const {
+      // Podaci
+      artists, releases, articles, users,
+      // Admin UI Stanje
+      searchTerm, currentPage, itemsPerPage, viewMode, setSearchTerm, setCurrentPage, setItemsPerPage, setViewMode, resetPagination,
+      // Dashboard Stanje
+      selectedYear, setSelectedYear, selectedArtistId, setSelectedArtistId, selectedGenre, setSelectedGenre, triggerReport, setTriggerReport,
+      // CRUD Funkcije
+      handleEdit, handleDelete, handleSave, handleCreateNew, filterAndPaginate,
+      // Modal Stanje
+      isModalOpen, editingArtist, editingRelease, editingArticle, setIsModalOpen, setEditingArtist, setEditingRelease, setEditingArticle,
+      // Izvedeni podaci
+      allArtistOptions
+  } = useData();
 
-  const allArtistOptions = useMemo(() => artists.map(a => ({ id: a.id, name: a.name, genre: a.genre })), [artists]);
-
-  // --- LOGIKA GENERIČKOG CRUD-a ---
-  
-  const handleEdit = (entity: any, type: EntityType) => {
-    if (type === 'articles') {
-      const articleWithTags = { ...entity, tags: entity.tags ? entity.tags.join(', ') : '', };
-      setEditingArticle(articleWithTags);
-    } else {
-      switch (type) {
-        case 'artists': setEditingArtist(entity); break;
-        case 'releases': setEditingRelease(entity); break;
-      }
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = (id: number, type: EntityType) => {
-    switch (type) {
-      case 'artists': setArtists(prev => prev.filter(e => e.id !== id)); break;
-      case 'releases': setReleases(prev => prev.filter(e => e.id !== id)); break;
-      case 'articles': setArticles(prev => prev.filter(e => e.id !== id)); break;
-    }
-  };
-
-  const handleSave = (entity: any, type: EntityType) => {
-    let finalEntity = entity;
-    
-    if (type === 'articles' && typeof entity.tags === 'string') {
-      finalEntity = { ...entity, tags: entity.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0), };
-    }
-    
-    const setState = type === 'artists' ? setArtists : (type === 'releases' ? setReleases : setArticles);
-    
-    setState((prev: any[]) => {
-      const index = prev.findIndex(e => e.id === finalEntity.id);
-      if (index > -1) {
-        return prev.map(e => (e.id === finalEntity.id ? finalEntity : e));
-      } else {
-        return [...prev, { ...finalEntity, id: Date.now() }];
-      }
-    });
-    setIsModalOpen(false);
-    setEditingArtist(null);
-    setEditingRelease(null);
-    setEditingArticle(null);
-  };
-
-  const handleCreateNew = (type: EntityType) => {
-    switch (type) {
-      case 'artists': setEditingArtist({...initialNewArtist, id: Date.now()}); break;
-      case 'releases': setEditingRelease({...initialNewRelease, id: Date.now()}); break;
-      case 'articles': setEditingArticle({...initialNewArticle, id: Date.now()}); break;
-    }
-    setIsModalOpen(true);
-  };
-  
-  const resetPagination = () => {
-      setCurrentPage(1);
-      setSearchTerm('');
-  };
-
-  // --- ПОМОЋНЕ ФУНКЦИЈЕ ЗА CRUD СЕКЦИЈЕ ---
-
-  const filterAndPaginate = (data: any[], searchKeys: string[]) => {
-    const filtered = data.filter(item => 
-        searchKeys.some(key => {
-            const value = item[key];
-            const searchableValue = Array.isArray(value) ? value.join(' ') : String(value);
-
-            return searchableValue.toLowerCase().includes(searchTerm.toLowerCase());
-        })
-    );
-    const start = (currentPage - 1) * itemsPerPage;
-    const paginated = filtered.slice(start, start + itemsPerPage);
-    return { filtered, paginated };
-  }
-  
+  // --- LOGIKA ZA PRETRAGU ---
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(e.target.value);
   };
@@ -139,18 +57,21 @@ const AdminPanelPage: React.FC = () => {
   // --- RENDERING SEKCIJA (AGREGACIJA LOGIKE) ---
 
   const ArtistsCrudSection: React.FC = () => {
-    const { filtered, paginated } = useMemo(() => filterAndPaginate(artists, ['name', 'genre', 'members', 'origin']), [artists, searchTerm, itemsPerPage, currentPage]);
+    // Koristi filterAndPaginate funkciju iz konteksta
+    const { filtered, paginated } = useMemo(() => filterAndPaginate(artists, ['name', 'genre', 'members', 'origin']), [artists, searchTerm, itemsPerPage, currentPage, filterAndPaginate]);
     return (<CrudSectionTemplate title="IZVOĐAČI" dataCount={artists.length} paginated={paginated} filteredLength={filtered.length} entityType="artists" viewMode={viewMode} setViewMode={setViewMode} searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleCreateNew={handleCreateNew} handleEdit={handleEdit} handleDelete={handleDelete} itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} setSearchTerm={setSearchTerm} />); 
   };
   
   const ReleasesCrudSection: React.FC = () => {
-    const { filtered, paginated } = useMemo(() => filterAndPaginate(releases, ['title', 'artist', 'format', 'year']), [releases, searchTerm, itemsPerPage, currentPage]);
-    return (<CrudSectionTemplate title="IZDANJA" dataCount={releases.length} paginated={paginated} filteredLength={filtered.length} entityType="releases" viewMode={viewMode} setViewMode={setViewMode} searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleCreateNew={handleCreateNew} handleEdit={handleEdit} handleDelete={handleDelete} itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage} setCurrentPage={currentPage} setSearchTerm={setSearchTerm} />); 
+    // Koristi filterAndPaginate funkciju iz konteksta
+    const { filtered, paginated } = useMemo(() => filterAndPaginate(releases, ['title', 'artist', 'format', 'year']), [releases, searchTerm, itemsPerPage, currentPage, filterAndPaginate]);
+    return (<CrudSectionTemplate title="IZDANJA" dataCount={releases.length} paginated={paginated} filteredLength={filtered.length} entityType="releases" viewMode={viewMode} setViewMode={setViewMode} searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleCreateNew={handleCreateNew} handleEdit={handleEdit} handleDelete={handleDelete} itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} setSearchTerm={setSearchTerm} />); 
   };
 
   const ArticlesCrudSection: React.FC = () => {
-    const { filtered, paginated } = useMemo(() => filterAndPaginate(articles, ['title', 'snippet', 'tags', 'date']), [articles, searchTerm, itemsPerPage, currentPage]);
-    return (<CrudSectionTemplate title="ČLANCI" dataCount={articles.length} paginated={paginated} filteredLength={filtered.length} entityType="articles" viewMode={viewMode} setViewMode={setViewMode} searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleCreateNew={handleCreateNew} handleEdit={handleEdit} handleDelete={handleDelete} itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage} setCurrentPage={currentPage} setSearchTerm={setSearchTerm} />); 
+    // Koristi filterAndPaginate funkciju iz konteksta
+    const { filtered, paginated } = useMemo(() => filterAndPaginate(articles, ['title', 'snippet', 'tags', 'date']), [articles, searchTerm, itemsPerPage, currentPage, filterAndPaginate]);
+    return (<CrudSectionTemplate title="ČLANCI" dataCount={articles.length} paginated={paginated} filteredLength={filtered.length} entityType="articles" viewMode={viewMode} setViewMode={setViewMode} searchTerm={searchTerm} handleSearchChange={handleSearchChange} handleCreateNew={handleCreateNew} handleEdit={handleEdit} handleDelete={handleDelete} itemsPerPage={itemsPerPage} setItemsPerPage={setItemsPerPage} currentPage={currentPage} setCurrentPage={setCurrentPage} setSearchTerm={setSearchTerm} />); 
   };
 
 
@@ -164,7 +85,7 @@ const AdminPanelPage: React.FC = () => {
             {currentEntity && (
                 <EntityForm 
                     entity={currentEntity}
-                    entityType={entityType}
+                    entityType={entityType as EntityType} // Eksplicitni cast nakon provere
                     allArtistOptions={allArtistOptions}
                     handleSave={handleSave}
                     setEntity={
@@ -196,7 +117,8 @@ const AdminPanelPage: React.FC = () => {
       case 'articles':
         return <ArticlesCrudSection />;
       case 'users':
-        return <UsersTable />; 
+        // Prosleđujemo mock users iz konteksta
+        return <UsersTable users={users} />; 
       case 'settings':
         return <SettingsSection />;
       default:
@@ -237,6 +159,14 @@ const AdminPanelPage: React.FC = () => {
     </div>
   );
 };
+
+// AdminPanelPage komponenta omotana DataProvider-om. 
+// NAPOMENA: U stvarnoj Next.js aplikaciji, DataProvider bi trebalo da ide u _app.tsx
+const AdminPanelPage: React.FC = () => (
+    <DataProvider>
+        <AdminPanelInner />
+    </DataProvider>
+);
 
 export default AdminPanelPage;
 
