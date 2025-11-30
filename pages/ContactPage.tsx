@@ -1,76 +1,147 @@
 // Naziv komponente: ContactPage
 import React, { useState } from 'react';
 import SectionTitle from '../components/shared/SectionTitle';
+import type { PathName } from '../data/types'; 
 
-// Stranica za Kontakt (sa izmenjenim layout-om)
+// Simulišemo Link
+const Link: React.FC<React.PropsWithChildren<{ to: PathName, className?: string, children: React.ReactNode }>> = ({ to, children, className }) => (
+  <a href={`#${to}`} className={className}>{children}</a> 
+);
+
 const ContactPage: React.FC = () => {
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('PORUKA POSLATA. HVALA NA INTERESOVANJU. ČEKAJTE POVRATNU INFORMACIJU.');
-    setTimeout(() => setMessage(''), 5000);
+    setIsSubmitting(true);
+    // Simulacija slanja
+    setTimeout(() => {
+        setMessage('SIGNAL PRIMLJEN. OČEKUJTE ODGOVOR NA FREKVENCIJI.');
+        setIsSubmitting(false);
+        setTimeout(() => setMessage(''), 5000);
+    }, 1500);
   };
 
   return (
-    <section className="min-h-screen pt-32 pb-20 bg-yellow-400 text-black px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <section className="min-h-screen pt-32 pb-20 bg-yellow-400 text-black px-4 border-t-8 border-black relative overflow-hidden">
+      
+       {/* Dekorativni background noise/pattern */}
+       <div className="absolute inset-0 opacity-10 pointer-events-none" 
+           style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}>
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
         
-        {/* Kontakt Forma - Kolona 1/2 */}
-        <div className="lg:col-span-2 p-8 border-4 border-black shadow-2xl bg-white h-fit">
-          <SectionTitle title="INICIJATIVA / KONTAKT" color="border-black bg-yellow-400" skew={false} />
-          
-          <form onSubmit={handleSubmit} className="space-y-4 font-mono">
-            <input
-              type="text"
-              placeholder="IME I PREZIME / NAZIV ORGANIZACIJE"
-              required
-              className="w-full p-3 border-2 border-black focus:outline-none focus:ring-4 focus:ring-red-600 bg-gray-200"
-            />
-            <input
-              type="email"
-              placeholder="E-MAIL ADRESA"
-              required
-              className="w-full p-3 border-2 border-black focus:outline-none focus:ring-4 focus:ring-red-600 bg-gray-200"
-            />
-            <textarea
-              placeholder="PORUKA / PREDLOG SARADNJE (SIROV MATERIJAL, DEMO LINK, PREDLOG ARTIKLA)"
-              rows={8}
-              required
-              className="w-full p-3 border-2 border-black focus:outline-none focus:ring-4 focus:ring-red-600 bg-gray-200"
-            ></textarea>
-            <button
-              type="submit"
-              className="w-full py-3 bg-black text-yellow-400 font-extrabold border-2 border-black hover:bg-red-800 hover:text-white transition duration-150"
-            >
-              POŠALJI NEFILTRIRANI ZVUK
-            </button>
-          </form>
-          {message && (
-            <div className="mt-6 p-4 border-2 border-red-600 bg-black text-yellow-400 font-mono text-center">
-              {message}
-            </div>
-          )}
+        <div className="mb-16">
+            <SectionTitle title="KONTAKT / INICIJATIVA" color="bg-black text-yellow-400 border-none px-4 inline-block" skew={false} />
+            <p className="mt-4 font-mono text-black max-w-2xl font-bold text-xl">
+                Otvoreni kanali za komunikaciju. Pošaljite demo, upit za saradnju ili prijavite grešku u sistemu.
+            </p>
         </div>
-        
-        {/* Info Blok - Kolona 3 */}
-        <div className="p-8 border-4 border-red-600 bg-black text-yellow-400 shadow-2xl h-fit transform -rotate-1 lg:rotate-2">
-            <h4 className="text-3xl font-mono font-extrabold border-b-2 border-yellow-400 pb-2 mb-4 text-white">OPŠTE INFORMACIJE</h4>
-            <p className="font-mono mb-6">
-                Zbog prirode našeg rada, ne pružamo telefonsku podršku. Sva komunikacija se odvija elektronski.
-            </p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]">
             
-            <h5 className="text-xl font-mono text-white mt-6 mb-2">LOKACIJA (Samo za poštu):</h5>
-            <p className="font-mono">
-                VOID SOUND <br/>
-                Postfach 030303<br/>
-                11000 Beograd, Srbija
-            </p>
-            
-            <h5 className="text-xl font-mono text-white mt-6 mb-2">EMAIL (Upiti za štampu):</h5>
-            <p className="font-mono">
-                press@voidsound.com
-            </p>
+            {/* LEVA STRANA - INFO I KONTEKST (Crna) */}
+            <div className="bg-black text-white p-8 md:p-16 flex flex-col justify-between min-h-[600px] border-4 border-black">
+                <div>
+                    <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter mb-8 leading-tight">
+                        POŠALJI NAM <br/>
+                        <span className="text-red-600">SIROVI MATERIJAL</span>.
+                    </h3>
+                    
+                    <div className="space-y-8 font-mono text-sm md:text-base text-gray-400">
+                        <div className="border-l-2 border-red-600 pl-4 hover:bg-gray-900 transition-colors p-2">
+                            <p className="text-white font-bold mb-1 text-lg">DEMO MATERIJALI:</p>
+                            <p>Prihvatamo samo Soundcloud/Bandcamp linkove. Ne šaljite MP3 fajlove direktno.</p>
+                        </div>
+                        
+                        <div className="border-l-2 border-red-600 pl-4 hover:bg-gray-900 transition-colors p-2">
+                            <p className="text-white font-bold mb-1 text-lg">BOOKING:</p>
+                            <p>Otvoreni smo za showcase nastupe u industrijskim prostorima.</p>
+                        </div>
+
+                        <div className="border-l-2 border-red-600 pl-4 hover:bg-gray-900 transition-colors p-2">
+                            <p className="text-white font-bold mb-1 text-lg">LOKACIJA:</p>
+                            <p>Novi Sad / Beograd / Internet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col font-mono text-xs gap-2">
+                    <div className="flex justify-between">
+                        <span>STATUS: <span className="text-green-500">ONLINE</span></span>
+                        <span>LAT: 44.7866</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>ENKRIPCIJA: BRAKED</span>
+                        <span>LON: 20.4489</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* DESNA STRANA - FORMA (Bela) */}
+            <div className="bg-white p-8 md:p-16 border-4 border-l-0 border-black relative">
+                
+                {/* Ukrasni "Ticket" broj */}
+                <div className="absolute top-4 right-4 font-mono text-xs text-gray-400 border border-gray-300 px-2 py-1 transform rotate-90 origin-top-right">
+                    REQ-ID: {Math.floor(Math.random() * 10000)}
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-8 relative">
+                    
+                    <div className="relative group">
+                        <label className="block font-mono text-xs font-bold text-gray-500 mb-2 uppercase group-focus-within:text-red-600 transition-colors">Identitet (Ime / Org)</label>
+                        <input
+                            type="text"
+                            required
+                            className="w-full bg-gray-50 border-b-4 border-gray-300 p-4 font-mono text-lg focus:outline-none focus:border-black focus:bg-yellow-50 transition-all placeholder-gray-300 text-black"
+                            placeholder="UNESITE PODATKE..."
+                        />
+                    </div>
+
+                    <div className="relative group">
+                        <label className="block font-mono text-xs font-bold text-gray-500 mb-2 uppercase group-focus-within:text-red-600 transition-colors">Digitalna Adresa</label>
+                        <input
+                            type="email"
+                            required
+                            className="w-full bg-gray-50 border-b-4 border-gray-300 p-4 font-mono text-lg focus:outline-none focus:border-black focus:bg-yellow-50 transition-all placeholder-gray-300 text-black"
+                            placeholder="EMAIL@PRIMER.COM"
+                        />
+                    </div>
+
+                    <div className="relative group">
+                        <label className="block font-mono text-xs font-bold text-gray-500 mb-2 uppercase group-focus-within:text-red-600 transition-colors">Poruka / Link</label>
+                        <textarea
+                            rows={4}
+                            required
+                            className="w-full bg-gray-50 border-b-4 border-gray-300 p-4 font-mono text-lg focus:outline-none focus:border-black focus:bg-yellow-50 transition-all placeholder-gray-300 resize-none text-black"
+                            placeholder="OPIŠITE SVOJ PROJEKAT..."
+                        ></textarea>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-black text-white font-mono font-bold text-xl py-6 hover:bg-red-600 transition-colors border-4 border-transparent hover:border-black relative overflow-hidden group"
+                    >
+                        <span className={`relative z-10 ${isSubmitting ? 'animate-pulse' : ''}`}>
+                            {isSubmitting ? 'SLANJE...' : 'INICIRAJ PRENOS →'}
+                        </span>
+                    </button>
+                </form>
+
+                {/* Poruka o uspehu - Overlay */}
+                {message && (
+                    <div className="absolute inset-0 bg-white/90 flex items-center justify-center z-20 border-4 border-black animate-fade-in-up">
+                        <div className="text-center p-8 border-4 border-red-600 bg-black text-yellow-400 shadow-2xl transform -rotate-2">
+                            <h4 className="text-2xl font-bold font-mono mb-2">STATUS: POTVRĐENO</h4>
+                            <p className="font-mono text-sm">{message}</p>
+                        </div>
+                    </div>
+                )}
+
+            </div>
         </div>
       </div>
     </section>

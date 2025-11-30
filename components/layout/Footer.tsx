@@ -7,105 +7,127 @@ const Link: React.FC<React.PropsWithChildren<{ to: PathName, className?: string,
   <a href={`#${to}`} className={className} onClick={onClick}>{children}</a> 
 );
 
-// Footer komponenta - MASIVNIJI, BRUTALISTIČKI DIZAJN
+// Footer komponenta - MODERN BRUTALISM
 const Footer: React.FC = () => {
     // Funkcija za navigaciju (samo menja hash)
     const handleLinkClick = (path: PathName) => {
         window.location.hash = path;
     };
 
-  const links: { name: string, path: PathName }[] = [
+  const mainLinks: { name: string, path: PathName }[] = [
     { name: 'POČETNA', path: '/' as PathName },
     { name: 'IZVOĐAČI', path: '/izvodjaci' as PathName },
     { name: 'IZDANJA', path: '/izdanja' as PathName },
-    { name: 'ČLANCI', path: '/clanci' as PathName },
-    { name: 'DOGAĐAJI', path: '/dogadjaji' as PathName }, // NOVO
-    { name: 'O NAMA', path: '/o-nama' as PathName },
-    { name: 'KONTAKT', path: '/kontakt' as PathName },
+    { name: 'DOGAĐAJI', path: '/dogadjaji' as PathName },
   ];
 
-  const extraLinks: { name: string, path: PathName }[] = [
-      { name: 'PODCAST', path: '/podcast' as PathName },
-      { name: 'INTERESANTNO', path: '/interesantno' as PathName },
+  const secondaryLinks: { name: string, path: PathName }[] = [
+      { name: 'O NAMA', path: '/o-nama' as PathName },
+      { name: 'KONTAKT', path: '/kontakt' as PathName },
+      { name: 'ČLANCI', path: '/clanci' as PathName },
       { name: 'ADMIN PANEL', path: '/admin' as PathName },
   ];
 
   return (
-    <footer className="bg-black text-white px-4 pt-16 border-t-4 border-yellow-400 mt-auto">
-      <div className="max-w-7xl mx-auto pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-b-2 border-white pb-10">
-
-          {/* Kolona 1: Glavna Navigacija */}
-          <div className="border-l-4 border-red-600 pl-4">
-            <h4 className="text-xl font-extrabold font-mono mb-4 text-yellow-400">BRZE RUTE</h4>
-            <nav className="flex flex-col space-y-2">
-              {links.map((link) => (
-                <button
-                  key={link.path}
-                  onClick={() => handleLinkClick(link.path)}
-                  className="text-lg font-mono tracking-wider hover:text-red-600 transition duration-150 text-left"
-                >
-                  {link.name}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          {/* Kolona 2: Info/Kontakt Detalji + Extra Linkovi */}
-          <div className="border-l-4 border-white pl-4 flex flex-col justify-between">
-            <div>
-                <h4 className="text-xl font-extrabold font-mono mb-4 text-yellow-400">INICIJATIVA I UPITI</h4>
-                <div className="space-y-4 font-serif text-sm mb-8">
-                <p>
-                    EMAIL (Upiti za demo): <br />
-                    <a href="mailto:demo@voidsound.com" className="hover:text-red-600 border-b border-white hover:border-red-600">
-                    demo@voidsound.com
-                    </a>
-                </p>
-                <p>
-                    EMAIL (Opšti upiti): <br />
-                    <a href="mailto:info@voidsound.com" className="hover:text-red-600 border-b border-white hover:border-red-600">
-                    info@voidsound.com
-                    </a>
-                </p>
-                </div>
-            </div>
-
-            <div>
-                <h4 className="text-xl font-extrabold font-mono mb-2 text-yellow-400">VIŠE SADRŽAJA</h4>
-                <nav className="flex flex-col space-y-2">
-                    {extraLinks.map((link) => (
-                        <button
-                        key={link.path}
-                        onClick={() => handleLinkClick(link.path)}
-                        className="text-base font-mono tracking-wider text-gray-400 hover:text-white transition duration-150 text-left"
-                        >
-                        {link.name}
-                        </button>
-                    ))}
-                </nav>
-            </div>
-          </div>
-
-          {/* Kolona 3: Manifest Blok / Motto */}
-          <div className="p-4 border-4 border-red-600 bg-gray-900 shadow-xl transform skew-y-1 h-fit">
-            <h4 className="text-2xl font-mono font-extrabold text-red-600 mb-2">VOID SOUND</h4>
-            <p className="font-serif italic text-base mb-4">
-              "Zvuk se ne prilagođava. On proždire. Brutalizam je naša jedina ideologija."
-            </p>
-             <p className="pt-2 border-t border-gray-700 font-mono text-xs text-gray-400 mb-4">
-                LOKACIJA: REGION / STATUS: AKTIVAN
-              </p>
-            <button className="w-full px-3 py-2 bg-yellow-400 text-black font-mono text-sm border-2 border-black hover:bg-red-600 hover:text-white transition duration-150 font-bold">
-                PRONAĐITE NAS NA BANDCAMP-u
-            </button>
-          </div>
-        </div>
+    <footer className="bg-black text-white border-t-8 border-red-600 mt-auto relative overflow-hidden">
+      
+      {/* Dekorativni background tekst (ogroman, jedva vidljiv) */}
+      <div className="absolute bottom-0 left-0 w-full pointer-events-none select-none overflow-hidden leading-none">
+          <span className="text-[20vw] font-black text-white/5 whitespace-nowrap -mb-10 block">VOID SOUND</span>
       </div>
 
-      {/* Copyright Podnožje */}
-      <div className="py-4 text-center border-t-2 border-gray-700">
-        <p className="text-xs font-mono text-gray-400">&copy; {new Date().getFullYear()} VOID SOUND. SVA PRAVA ZADRŽANA.</p>
+      <div className="max-w-7xl mx-auto px-4 pt-16 pb-8 relative z-10">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 border-b-4 border-white pb-12 mb-8">
+
+          {/* 1. BRANDING (4/12) */}
+          <div className="lg:col-span-4 flex flex-col justify-between">
+            <div>
+                <h2 className="text-6xl font-black tracking-tighter mb-4 leading-none">
+                    VOID<br/><span className="text-transparent stroke-text" style={{ WebkitTextStroke: '2px white' }}>SOUND</span>
+                </h2>
+                <p className="font-mono text-gray-400 text-sm mt-4 max-w-xs">
+                    Platforma za dokumentovanje i distribuciju nekonvencionalnog zvuka.
+                    <br/><br/>
+                    <span className="text-red-600 font-bold">EST. 2021 // NOVI SAD</span>
+                </p>
+            </div>
+            
+            {/* Socials (Mock) */}
+            <div className="flex gap-4 mt-8">
+                {['INSTAGRAM', 'BANDCAMP', 'SOUNDCLOUD'].map(social => (
+                    <a key={social} href="#" className="border border-white px-3 py-1 font-mono text-xs hover:bg-white hover:text-black transition-colors">
+                        {social}
+                    </a>
+                ))}
+            </div>
+          </div>
+
+          {/* 2. NAVIGACIJA (4/12) */}
+          <div className="lg:col-span-4 grid grid-cols-2 gap-8">
+            <div className="flex flex-col gap-2">
+                <h4 className="font-mono text-xs text-gray-500 mb-4 border-b border-gray-700 pb-2">INDEX</h4>
+                {mainLinks.map(link => (
+                    <button
+                        key={link.path}
+                        onClick={() => handleLinkClick(link.path)}
+                        className="text-left font-bold text-xl hover:text-yellow-400 hover:translate-x-2 transition-all"
+                    >
+                        {link.name}
+                    </button>
+                ))}
+            </div>
+            <div className="flex flex-col gap-2">
+                <h4 className="font-mono text-xs text-gray-500 mb-4 border-b border-gray-700 pb-2">INFO</h4>
+                {secondaryLinks.map(link => (
+                    <button
+                        key={link.path}
+                        onClick={() => handleLinkClick(link.path)}
+                        className="text-left font-mono text-sm text-gray-300 hover:text-white hover:underline decoration-red-600 underline-offset-4 transition-all"
+                    >
+                        {link.name}
+                    </button>
+                ))}
+            </div>
+          </div>
+
+          {/* 3. NEWSLETTER (4/12) */}
+          <div className="lg:col-span-4 bg-white text-black p-6 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+            <h4 className="text-2xl font-black mb-2 uppercase">Prijavi se za signal</h4>
+            <p className="font-mono text-xs mb-6 text-gray-600">Primaj obaveštenja o novim izdanjima i tajnim lokacijama.</p>
+            
+            <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+                <input 
+                    type="email" 
+                    placeholder="TVOJ EMAIL..." 
+                    className="bg-gray-100 border-2 border-black p-3 font-mono text-sm focus:outline-none focus:border-red-600 placeholder-gray-400"
+                />
+                <button className="bg-black text-white font-bold py-3 border-2 border-transparent hover:bg-red-600 hover:border-black transition-colors uppercase tracking-widest text-sm">
+                    POŠALJI →
+                </button>
+            </form>
+          </div>
+
+        </div>
+
+        {/* SYSTEM STATUS BAR (Dno) */}
+        <div className="flex flex-col md:flex-row justify-between items-center font-mono text-xs text-gray-500 gap-4">
+            <div className="flex gap-4">
+                <span>&copy; {new Date().getFullYear()} VOID SOUND</span>
+                <span className="hidden md:inline">|</span>
+                <span>SVA PRAVA ZADRŽANA</span>
+            </div>
+            
+            <div className="flex gap-6">
+                <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    SYSTEM ONLINE
+                </span>
+                <span>VERZIJA 2.4.0</span>
+                <span>LATENCY: 12ms</span>
+            </div>
+        </div>
+
       </div>
     </footer>
   );
